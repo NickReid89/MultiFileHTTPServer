@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.*;
 
@@ -16,6 +18,21 @@ public class MultiFileHTTPServer {
     private final int port;
     private final String encoding;
 
+    public MultiFileHTTPServer(String[] data, String encoding,
+            String mimeType, int port)  {
+        //this(data.getBytes(encoding), encoding, mimeType, port);
+        // Add all files here somehow.
+        this.content = new byte[100];
+        this.port = port;
+        this.encoding = encoding;
+        String header = "HTTP/1.0 200 OK\r\n"
+                + "Server: OneFile 2.0\r\n"
+                + "Content-length: " + this.content.length + "\r\n"
+                + "Content-type: " + mimeType + "; charset=" + encoding + "\r\n\r\n";
+        this.header = header.getBytes(Charset.forName("US-ASCII"));
+    }
+    
+    
     public MultiFileHTTPServer(String data, String encoding,
             String mimeType, int port) throws UnsupportedEncodingException {
         this(data.getBytes(encoding), encoding, mimeType, port);
@@ -105,7 +122,7 @@ public class MultiFileHTTPServer {
         // set the port to listen on
         int port;
         try {
-            port = Integer.parseInt(args[1]);
+            port = Integer.parseInt(args[0]);
             if (port < 1 || port > 65535) {
                 port = 80;
             }
@@ -114,18 +131,21 @@ public class MultiFileHTTPServer {
         }
 
         String encoding = "UTF-8";
-        if (args.length > 2) {
-            encoding = args[2];
+        if (args.length > 1) {
+            encoding = args[1];
         }
 
         try {
-            Path path = Paths.get(args[0]);
+            for(int i = 2; i < args.length;i++){
+            Path path = Paths.get(args[3]);
             byte[] data = Files.readAllBytes(path);
 
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(args[0]);
-            MultiFileHTTPServer server = new MultiFileHTTPServer(data, encoding,
+            MultiFileHTTPServer server = new MultiFileHTTPServer(data[args.length -2], encoding,
                     contentType, port);
+            
             server.start();
+            }
 
         } catch (ArrayIndexOutOfBoundsException ex) {
             System.out.println(
