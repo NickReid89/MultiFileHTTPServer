@@ -13,39 +13,20 @@ public class MultiFileHTTPServer {
 
     private static final Logger logger = Logger.getLogger("SingleFileHTTPServer");
 
-    private final byte[] content;
+    private final String content;
     private final byte[] header;
     private final int port;
     private final String encoding;
+    private final ArrayList<MultiFileHTTPServer> data = new ArrayList<MultiFileHTTPServer>();
 
-    public MultiFileHTTPServer(String[] data, String encoding,
-            String mimeType, int port)  {
-        //this(data.getBytes(encoding), encoding, mimeType, port);
-        // Add all files here somehow.
-        this.content = new byte[100];
-        this.port = port;
-        this.encoding = encoding;
-        String header = "HTTP/1.0 200 OK\r\n"
-                + "Server: OneFile 2.0\r\n"
-                + "Content-length: " + this.content.length + "\r\n"
-                + "Content-type: " + mimeType + "; charset=" + encoding + "\r\n\r\n";
-        this.header = header.getBytes(Charset.forName("US-ASCII"));
-    }
-    
-    
     public MultiFileHTTPServer(String data, String encoding,
-            String mimeType, int port) throws UnsupportedEncodingException {
-        this(data.getBytes(encoding), encoding, mimeType, port);
-    }
-
-    public MultiFileHTTPServer(
-            byte[] data, String encoding, String mimeType, int port) {
-        this.content = data;
+            String mimeType, int port) {
+        content = data;
         this.port = port;
         this.encoding = encoding;
         String header = "HTTP/1.0 200 OK\r\n"
                 + "Server: OneFile 2.0\r\n"
-                + "Content-length: " + this.content.length + "\r\n"
+                + "Content-length: " + this.content.length() + "\r\n"
                 + "Content-type: " + mimeType + "; charset=" + encoding + "\r\n\r\n";
         this.header = header.getBytes(Charset.forName("US-ASCII"));
     }
@@ -121,6 +102,7 @@ public class MultiFileHTTPServer {
 
         // set the port to listen on
         int port;
+        ArrayList<String> webPages = new ArrayList<String>();
         try {
             port = Integer.parseInt(args[0]);
             if (port < 1 || port > 65535) {
@@ -136,16 +118,17 @@ public class MultiFileHTTPServer {
         }
 
         try {
-            for(int i = 2; i < args.length;i++){
+            for (int i = 2; i <= args.length; i++) {
+                webPages.add(args[i]);
+            }
             Path path = Paths.get(args[3]);
             byte[] data = Files.readAllBytes(path);
 
             String contentType = URLConnection.getFileNameMap().getContentTypeFor(args[0]);
-            MultiFileHTTPServer server = new MultiFileHTTPServer(data[args.length -2], encoding,
+            MultiFileHTTPServer server = new MultiFileHTTPServer(args[2], encoding,
                     contentType, port);
-            
+
             server.start();
-            }
 
         } catch (ArrayIndexOutOfBoundsException ex) {
             System.out.println(
