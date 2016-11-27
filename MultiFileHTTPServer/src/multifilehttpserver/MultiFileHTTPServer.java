@@ -38,7 +38,7 @@ public class MultiFileHTTPServer {
             logger.log(Level.INFO, "Accepting connections on port {0}", server.getLocalPort());
 
             logger.info("Data to be sent:");
-            logger.info(new String(this.content, encoding));
+            //logger.info(new String(this.content, encoding));
 
             while (true) {
                 try {
@@ -87,7 +87,7 @@ public class MultiFileHTTPServer {
                 if (request.toString().indexOf("HTTP/") != -1) {
                     out.write(header);
                 }
-                out.write(content);
+                out.write(content.getBytes());
                 out.flush();
             } catch (IOException ex) {
                 logger.log(Level.WARNING, "Error writing to client", ex);
@@ -106,10 +106,10 @@ public class MultiFileHTTPServer {
         try {
             port = Integer.parseInt(args[0]);
             if (port < 1 || port > 65535) {
-                port = 80;
+                port = 110;
             }
         } catch (RuntimeException ex) {
-            port = 80;
+            port = 110;
         }
 
         String encoding = "UTF-8";
